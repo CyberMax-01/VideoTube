@@ -13,3 +13,5 @@ class apiError extends Error {
         }
     }
 }
+
+export {ApiError}
