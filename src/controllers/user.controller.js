@@ -1,11 +1,11 @@
 import asyncHandler from '../utils/asyncHandler.js'
-import { ApiError } from '../utils/apiError.js'
+import { apiError } from '../utils/apiError.js'
 import { User } from '../models/user.model.js'
 import { uploadOnCloudinary } from '../utils/cloudinary.js'
-import { ApiResponse } from '../utils/apiResponse.js'
+import { apiResponse } from '../utils/apiResponse.js'
 
 const registerUser = asyncHandler( async (req, res) => {
-    // get user details from frontend  X
+    // get user details from frontend
     // validation - not empty
     // check if user already exist: username, email
     // check for image, check for avatar
@@ -20,29 +20,29 @@ const registerUser = asyncHandler( async (req, res) => {
     if([username, fullname, email, password].some(
         (field) => field?.trim() === ""
     )) {
-        throw new ApiError(400, "All fields are required")
+        throw new apiError(400, "All fields are required")
     }
 
-    const existedUser = User.findOne({
+    const existedUser = await User.findOne({
         $or: [{username}, {email}]
     })
 
     if(existedUser) {
-        throw new ApiError(409, "User with this username and email already existed")
+        throw new apiError(409, "User with this username and email already existed")
     }
 
-    const avatarLocalPath = req.files?.avatar[0]?.path
-    const coverImageLocalPath = req.files?.coverImage[0]?.path
+    const avatarLocalPath = Object.hasOwn(req.files, "avatar")? req.files?.avatar[0]?.path : null
+    const coverImageLocalPath = Object.hasOwn(req.files, "coverImage")? req.files?.coverImage[0]?.path : null
 
     if(!avatarLocalPath) {
-        throw new ApiError(400, "Avatar file is required")
+        throw new apiError(400, "Avatar file is required")
     }
 
     const avatar = await uploadOnCloudinary(avatarLocalPath)
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
     if(!avatar) {
-        throw new ApiError(500, "Unable to upload avatar file on cloudinary")
+        throw new apiError(500, "Unable to upload avatar file on cloudinary")
     }
 
     const user = await User.create({
@@ -59,11 +59,11 @@ const registerUser = asyncHandler( async (req, res) => {
     )
 
     if(!createdUser) {
-        throw new ApiError(500, "Something went wrong while registering the user")
+        throw new apiError(500, "Something went wrong while registering the user")
     }
 
-    return res.send(201).json(
-        new ApiResponse(200, createdUser, "User created Successfully :)")
+    return res.status(201).json(
+        new apiResponse(201, createdUser, "User created Successfully :)")
     )
 })
 
