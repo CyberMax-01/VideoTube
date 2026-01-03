@@ -28,8 +28,15 @@ const userSchema = new mongoose.Schema(
             type: String, // cloudinary url
             required: true,
         },
+        avatarPublicId: {
+            type: String, // cloudinar asset public id
+            required: true,
+        },
         coverImage: {
             type: String, // cloudinary url
+        },
+        coverImagePublicId: {
+            type:String  // cloudinary asset public id
         },
         watchHistory: [
             {
