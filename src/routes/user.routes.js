@@ -29,7 +29,7 @@ router.route('/changePassword').post(verifyJWT, changeCurrentPassword)
 
 router.route('/currentUser').get(verifyJWT, getCurrentUser)
 
-router.route('/refresh-token').get(verifyJWT, refreshAccessToken)
+router.route('/refresh-token').get(refreshAccessToken)
 
 router.route('/coverImage').patch(
     verifyJWT,

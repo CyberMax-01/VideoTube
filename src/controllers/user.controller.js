@@ -104,8 +104,8 @@ const loginUser = asyncHandler( async (req, res) => {
 
     const {usernameOrEmail, password} = req.body
 
-    if(!usernameOrEmail) {
-        throw new ApiError(400, "Username or email is required")
+    if(!(usernameOrEmail && password)) {
+        throw new ApiError(400, "Username/email and password is required")
     }
 
     const user = await User.findOne({
@@ -150,14 +150,18 @@ const logoutUser = asyncHandler( async (req, res) => {
     const user = await User.findByIdAndUpdate(
         req.user._id,
         {
-            $set: {
-                refreshToken: null
+            $unset: {
+                refreshToken: 1 // This will remove this field from document
             }
         },
         {
             new: true
         }
     )
+
+    if(!user) {
+        throw new ApiError(403, "Error while deleting refresh-token")
+    }
 
     const options = {
         httpOnly: true,
